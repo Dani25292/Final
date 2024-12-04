@@ -16,6 +16,20 @@ d3.csv("updated_combined_data_with_russia.csv").then(data => {
     .attr("width", width)
     .attr("height", height);
 
+  // Add a group to apply zoom and pan transformations
+  const g = svg.append("g");
+
+  // Define zoom behavior
+  const zoom = d3.zoom()
+    .scaleExtent([1, 8]) // Define zoom scale limits
+    .translateExtent([[0, 0], [width, height]]) // Limit panning to map bounds
+    .on("zoom", (event) => {
+      g.attr("transform", event.transform); // Apply transformation
+    });
+
+  // Attach zoom behavior to SVG
+  svg.call(zoom);
+
   const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("position", "absolute")
@@ -25,7 +39,7 @@ d3.csv("updated_combined_data_with_russia.csv").then(data => {
     .style("display", "none");
 
   d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then(geoData => {
-    svg.selectAll("path")
+    g.selectAll("path")
       .data(geoData.features)
       .enter()
       .append("path")
