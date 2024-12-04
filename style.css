@@ -1,0 +1,47 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.title-container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#map-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+#map {
+  width: 960px;
+  height: 600px;
+}
+
+#color-legend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.9em;
+  margin-top: 20px;
+}
+
+.legend-color {
+  width: 100px;
+  height: 20px;
+  margin: 5px 0;
+}
+
+.tooltip {
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  padding: 5px;
+  pointer-events: none;
+}
+
+#arms-chart, #stability-chart {
+  margin-top: 20px;
+  text-align: center;
+}
