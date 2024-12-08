@@ -52,3 +52,24 @@ body {
   font-size: 1em;
   color: #555;
 }
+
+.compare-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin: 20px;
+}
+
+#comparison-charts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+#compare-arms-chart, #compare-stability-chart {
+  width: 100%;
+  max-width: 960px;
+  margin-top: 20px;
+}
