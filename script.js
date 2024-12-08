@@ -1,4 +1,4 @@
-// Load CSV data and initialize the visualization
+
 d3.csv("updated_combined_data_with_russia.csv").then(data => {
   // Parse StabilityEstimate and ArmsDeliveries into numbers
   data.forEach(row => {
