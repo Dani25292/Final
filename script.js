@@ -1,7 +1,9 @@
+// Load CSV data and initialize the visualization
 d3.csv("updated_combined_data_with_russia.csv").then(data => {
-  // Parse StabilityEstimate into numbers and handle missing values
+  // Parse StabilityEstimate and ArmsDeliveries into numbers
   data.forEach(row => {
     row.StabilityEstimate = parseFloat(row.StabilityEstimate);
+    row.ArmsDeliveries = parseFloat(row.ArmsDeliveries);
   });
 
   const width = 960;
@@ -16,26 +18,19 @@ d3.csv("updated_combined_data_with_russia.csv").then(data => {
     .attr("width", width)
     .attr("height", height);
 
-  // Add a group to apply zoom and pan transformations
   const g = svg.append("g");
 
-  // Define zoom behavior
   const zoom = d3.zoom()
-    .scaleExtent([1, 8]) // Define zoom scale limits
-    .translateExtent([[0, 0], [width, height]]) // Limit panning to map bounds
+    .scaleExtent([1, 8])
+    .translateExtent([[0, 0], [width, height]])
     .on("zoom", (event) => {
-      g.attr("transform", event.transform); // Apply transformation
+      g.attr("transform", event.transform);
     });
 
-  // Attach zoom behavior to SVG
   svg.call(zoom);
 
   const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
-    .style("position", "absolute")
-    .style("background-color", "white")
-    .style("border", "1px solid black")
-    .style("padding", "5px")
     .style("display", "none");
 
   d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then(geoData => {
@@ -48,12 +43,11 @@ d3.csv("updated_combined_data_with_russia.csv").then(data => {
         const countryData = data.find(row => row.Country === d.properties.name);
         return countryData && !isNaN(countryData.StabilityEstimate)
           ? colorScale(countryData.StabilityEstimate)
-          : "#f0f0f0"; // Default color for missing data
+          : "#f0f0f0";
       })
       .attr("stroke", "#d3d3d3")
       .on("mouseover", (event, d) => {
-        const countryName = d.properties.name;
-        tooltip.style("display", "block").text(countryName);
+        tooltip.style("display", "block").text(d.properties.name);
       })
       .on("mousemove", event => {
         tooltip.style("left", (event.pageX + 10) + "px")
@@ -61,7 +55,7 @@ d3.csv("updated_combined_data_with_russia.csv").then(data => {
       })
       .on("mouseout", () => tooltip.style("display", "none"))
       .on("click", (event, d) => showCountryData(d.properties.name));
-  }).catch(error => console.error("Error loading GeoJSON:", error));
+  });
 
   function showCountryData(country) {
     const countryData = data.filter(row => row.Country === country);
@@ -79,33 +73,79 @@ d3.csv("updated_combined_data_with_russia.csv").then(data => {
     const armsTrace = {
       x: years,
       y: armsDeliveries,
-      mode: 'lines+markers',
-      name: 'Arms Export',
-      line: { color: '#ff7f0e' }
+      mode: "lines+markers",
+      name: "Arms Export",
+      line: { color: "#ff7f0e" }
     };
 
     const armsLayout = {
       title: `${country} - Arms Export Over Time`,
-      xaxis: { title: 'Year' },
-      yaxis: { title: 'Arms Export Value' }
+      xaxis: { title: "Year" },
+      yaxis: { title: "Arms Export Value" }
     };
 
     // Stability Graph
     const stabilityTrace = {
       x: years,
       y: stability,
-      mode: 'lines+markers',
-      name: 'Political Stability',
-      line: { color: '#1f77b4' }
+      mode: "lines+markers",
+      name: "Political Stability",
+      line: { color: "#1f77b4" }
     };
 
     const stabilityLayout = {
       title: `${country} - Political Stability Over Time`,
-      xaxis: { title: 'Year' },
-      yaxis: { title: 'Stability Level', range: [-3, 3] } // Fixed range
+      xaxis: { title: "Year" },
+      yaxis: { title: "Stability Level", range: [-3, 3] }
     };
 
     Plotly.newPlot("arms-chart", [armsTrace], armsLayout);
     Plotly.newPlot("stability-chart", [stabilityTrace], stabilityLayout);
   }
-});
+
+  function populateCountryDropdowns() {
+    const countryList = [...new Set(data.map(row => row.Country))].sort();
+
+    const country1Select = d3.select("#country1");
+    const country2Select = d3.select("#country2");
+
+    countryList.forEach(country => {
+      country1Select.append("option").text(country).attr("value", country);
+      country2Select.append("option").text(country).attr("value", country);
+    });
+
+    country1Select.property("value", "United States");
+    country2Select.property("value", "Russia");
+
+    updateComparisonCharts();
+    country1Select.on("change", updateComparisonCharts);
+    country2Select.on("change", updateComparisonCharts);
+  }
+
+  function updateComparisonCharts() {
+    const country1 = d3.select("#country1").property("value");
+    const country2 = d3.select("#country2").property("value");
+
+    const country1Data = data.filter(row => row.Country === country1);
+    const country2Data = data.filter(row => row.Country === country2);
+
+    const years1 = country1Data.map(row => +row.Year);
+    const stability1 = country1Data.map(row => +row.StabilityEstimate);
+    const arms1 = country1Data.map(row => +row.ArmsDeliveries);
+
+    const years2 = country2Data.map(row => +row.Year);
+    const stability2 = country2Data.map(row => +row.StabilityEstimate);
+    const arms2 = country2Data.map(row => +row.ArmsDeliveries);
+
+    const armsTrace1 = { x: years1, y: arms1, mode: "lines+markers", name: country1 };
+    const armsTrace2 = { x: years2, y: arms2, mode: "lines+markers", name: country2 };
+
+    const stabilityTrace1 = { x: years1, y: stability1, mode: "lines+markers", name: country1 };
+    const stabilityTrace2 = { x: years2, y: stability2, mode: "lines+markers", name: country2 };
+
+    Plotly.newPlot("compare-arms-chart", [armsTrace1, armsTrace2], { title: "Arms Export Comparison" });
+    Plotly.newPlot("compare-stability-chart", [stabilityTrace1, stabilityTrace2], { title: "Political Stability Comparison" });
+  }
+
+  populateCountryDropdowns();
+}).catch(error => console.error("Error loading data:", error));
