@@ -1,6 +1,6 @@
 
 d3.csv("updated_combined_data_with_russia.csv").then(data => {
-  // Parse StabilityEstimate and ArmsDeliveries into numbers
+  
   data.forEach(row => {
     row.StabilityEstimate = parseFloat(row.StabilityEstimate);
     row.ArmsDeliveries = parseFloat(row.ArmsDeliveries);
