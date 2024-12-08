@@ -12,6 +12,7 @@
   <div class="title-container">
     <h1>USA Arms Export and Political Stability Visualization</h1>
   </div>
+
   <div id="map-container">
     <div id="map"></div>
     <div id="color-legend">
@@ -26,8 +27,27 @@
     </div>
   </div>
   <p class="instructions">Zoom and click on a country to view its data.</p>
+
   <div id="arms-chart"></div>
   <div id="stability-chart"></div>
+
+  <div class="compare-container">
+    <h2>Compare Two Countries</h2>
+    <div>
+      <label for="country1">Select Country 1:</label>
+      <select id="country1"></select>
+    </div>
+    <div>
+      <label for="country2">Select Country 2:</label>
+      <select id="country2"></select>
+    </div>
+  </div>
+
+  <div id="comparison-charts">
+    <div id="compare-arms-chart"></div>
+    <div id="compare-stability-chart"></div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
